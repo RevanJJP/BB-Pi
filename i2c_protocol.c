@@ -6,11 +6,63 @@
 
 
 //gcc -lm -lwiringPi i2c_wrapper.c i2c_protocol.c -o demo
-int WAIT_TIME = 100;
+#define WAIT_TIME 100
+#define SIGNAL_TIME 1000
 
 void error() {
     reset_i2c();
     exit(EXIT_FAILURE);
+}
+
+void START(){
+    init_i2c();
+    usleep(WAIT_TIME);
+    set_sda_low();
+    usleep(WAIT_TIME);
+    set_scl_low();
+}
+
+void STOP(){
+    set_scl_low();
+    usleep(WAIT_TIME);
+    set_sda_low();
+    usleep(WAIT_TIME);
+    set_scl_high();
+    usleep(WAIT_TIME);
+    set_sda_high();
+    usleep(WAIT_TIME);
+    reset_i2c();
+}
+
+void SEND_1BIT()  {
+    set_sda_high();
+    usleep(WAIT_TIME);
+    set_scl_high();
+    usleep(SIGNAL_TIME);
+    set_scl_low();
+    usleep(WAIT_TIME);
+}
+
+void SEND_0BIT()  {
+    set_sda_low();
+    usleep(WAIT_TIME);
+    set_scl_high();
+    usleep(SIGNAL_TIME);
+    set_scl_low();
+    usleep(WAIT_TIME);
+}
+
+int READ_BIT() {
+    set_sda_high();
+    usleep(WAIT_TIME);
+    set_input_sda();
+    usleep(WAIT_TIME);
+    set_scl_high();
+    usleep(SIGNAL_TIME);
+    int bit = read_sda();
+    set_scl_low();
+    usleep(WAIT_TIME);
+    set_output_sda();
 }
 
 int write_byte(int byte) {
@@ -21,9 +73,8 @@ int write_byte(int byte) {
     }
     
     for(int i=0; i<8; i++) {
-        if(buf[i] == 0) set_sda_high();
-        else set_sda_low();
-        usleep(WAIT_TIME);
+        if(buf[i] == 0) SEND_1BIT();
+        else SEND_0BIT();
     }
     
     return 0;
@@ -32,13 +83,12 @@ int write_byte(int byte) {
 int write_i2c(int slave, int reg, int data) {
     
     //start
-    set_sda_low();
-    usleep(WAIT_TIME);
+    START();
    
     //writing adress
     write_byte(2*slave);
 
-    if(read_sda!=0) {
+    if(READ_BIT()!=0) {
         printf("Wrong acknoladge bit A1");
         error();
     }
@@ -46,7 +96,7 @@ int write_i2c(int slave, int reg, int data) {
 
     write_byte(reg);
 
-    if(read_sda!=0) {
+    if(READ_BIT()!=0) {
         printf("Wrong acknoladge bit A2");
         error();
     }
@@ -54,14 +104,12 @@ int write_i2c(int slave, int reg, int data) {
 
     write_byte(data);
 
-    if(read_sda!=0) {
+    if(READ_BIT()!=0) {
         printf("Wrong acknoladge bit A3");
         error();
     }
-    usleep(WAIT_TIME);
-
-    set_sda_high();
-    usleep(WAIT_TIME);
+   
+    STOP();
 }
 
 int main()
