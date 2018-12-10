@@ -2,9 +2,9 @@ int init_i2c();
 
 int reset_i2c();
 
-void set_scl_high (int frequency);
+void set_scl_high();
 
-void set_scl_low (int frequency);
+void set_scl_low();
 
 int read_scl();
 
