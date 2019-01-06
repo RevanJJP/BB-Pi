@@ -17,3 +17,5 @@ void set_input_sda();
 void set_output_sda();
 
 int read_sda();
+
+void debug(char val);

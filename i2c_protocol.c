@@ -63,6 +63,8 @@ int READ_BIT() {
     set_scl_low();
     usleep(WAIT_TIME);
     set_output_sda();
+
+    return bit;
 }
 
 int write_byte(int byte) {
@@ -110,13 +112,13 @@ int write_i2c(int slave, int reg, int data) {
     }
    
     STOP();
+
+    return 0;
 }
 
 int main()
 {
-    init_i2c();
     write_i2c(0x40, 0x00, 0x01);
-    reset_i2c();
 
     return 0;
 }
