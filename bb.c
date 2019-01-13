@@ -26,6 +26,7 @@
 #define HEAD_ENGINE 2
 
 #define DEVICE 0x40
+#define ENGINE_TIMEOUT 100000
 //gcc -lm -lncurses ABE_ServoPi.c bb.c -o bb
 
 enum CONTROLS {
@@ -73,40 +74,46 @@ void servo_control(char command) {
 	switch(command) {
 			case FORWARD:
 			 	printf("↑\r\n");
+				usleep(ENGINE_TIMEOUT);
 				set_pwm(RIGHT_ENGINE, 0, CLOCKWISE, DEVICE);
-				usleep(10000);
+				usleep(ENGINE_TIMEOUT);
 				set_pwm(LEFT_ENGINE, 0, COUNTER_CLOCKWISE, DEVICE);
 			 	break;
 			case BACKWARD:
 				printf("↓\r\n");
+				usleep(ENGINE_TIMEOUT);
 				set_pwm(RIGHT_ENGINE, 0, COUNTER_CLOCKWISE, DEVICE);
-				usleep(10000);
+				usleep(ENGINE_TIMEOUT);
 				set_pwm(LEFT_ENGINE, 0, CLOCKWISE, DEVICE);
 			 	break;
 			case LEFT:
 			 	printf("←\r\n");
+				 usleep(ENGINE_TIMEOUT);
 				set_pwm(RIGHT_ENGINE, 0, CLOCKWISE, DEVICE);
-				usleep(10000);
+				usleep(ENGINE_TIMEOUT);
 				set_pwm(LEFT_ENGINE, 0, CLOCKWISE, DEVICE);
 
 			 	break;
 			case RIGHT:
 			 	printf("→\r\n");
+				 usleep(ENGINE_TIMEOUT);
 				set_pwm(RIGHT_ENGINE, 0, COUNTER_CLOCKWISE, DEVICE);
-				usleep(10000);
+				usleep(ENGINE_TIMEOUT);
 				set_pwm(LEFT_ENGINE, 0, COUNTER_CLOCKWISE, DEVICE);
 
 			 	break;
 			case FORWARD_LEFT:
 			 	printf("↖\r\n");
+				usleep(ENGINE_TIMEOUT);
 				set_pwm(RIGHT_ENGINE, 0, CLOCKWISE, DEVICE);
-				usleep(10000);
+				usleep(ENGINE_TIMEOUT);
 				set_pwm(LEFT_ENGINE, 0, CLOCKWISE, DEVICE);
 
 			 	break;
 			case FORWARD_RIGHT:
+				usleep(ENGINE_TIMEOUT);
 				set_pwm(RIGHT_ENGINE, 0, COUNTER_CLOCKWISE, DEVICE);
-				usleep(10000);
+				usleep(ENGINE_TIMEOUT);
 				set_pwm(LEFT_ENGINE, 0, COUNTER_CLOCKWISE, DEVICE);
 
 			 	printf("↗\r\n");
@@ -125,11 +132,11 @@ void servo_control(char command) {
 			 	break;
 			case PAUSE:
 			 	set_pwm(HEAD_ENGINE, 0, 0, DEVICE);
-			 	usleep(10000);
+			 	usleep(ENGINE_TIMEOUT);
 				set_pwm(RIGHT_ENGINE, 0, 0, DEVICE);
-				usleep(10000);
+				usleep(ENGINE_TIMEOUT);
 				set_pwm(LEFT_ENGINE, 0, 0, DEVICE);
-				usleep(10000);
+				usleep(ENGINE_TIMEOUT);
 			 	printf("o\r\n");
 			 	break;
         default:
