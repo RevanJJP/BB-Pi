@@ -4,10 +4,7 @@
 #include <time.h>
 #include <unistd.h>
 
-
 //gcc -lm -lwiringPi i2c_wrapper.c i2c_protocol.c -o demo
-#define WAIT_TIME 100
-#define SIGNAL_TIME 1000
 
 void error() {
     reset_i2c();
@@ -16,52 +13,52 @@ void error() {
 
 void START(){
     init_i2c();
-    usleep(WAIT_TIME);
-    set_sda_low();
-    usleep(WAIT_TIME);
+    OUTPUT_WAIT;
     set_scl_low();
+    OUTPUT_WAIT;
+    set_sda_low();
 }
 
 void STOP(){
     set_scl_low();
-    usleep(WAIT_TIME);
+    OUTPUT_WAIT;
     set_sda_low();
-    usleep(WAIT_TIME);
+    OUTPUT_WAIT;
     set_scl_high();
-    usleep(WAIT_TIME);
+    OUTPUT_WAIT;
     set_sda_high();
-    usleep(WAIT_TIME);
+    OUTPUT_WAIT;
     reset_i2c();
 }
 
 void SEND_1BIT()  {
     set_sda_high();
-    usleep(WAIT_TIME);
+    OUTPUT_WAIT;
     set_scl_high();
-    usleep(SIGNAL_TIME);
+    SIGNAL_WAIT;
     set_scl_low();
-    usleep(WAIT_TIME);
+    OUTPUT_WAIT;
 }
 
 void SEND_0BIT()  {
     set_sda_low();
-    usleep(WAIT_TIME);
+    OUTPUT_WAIT;
     set_scl_high();
-    usleep(SIGNAL_TIME);
+    SIGNAL_WAIT;
     set_scl_low();
-    usleep(WAIT_TIME);
+    OUTPUT_WAIT;
 }
 
 int READ_BIT() {
     set_sda_high();
-    usleep(WAIT_TIME);
+    OUTPUT_WAIT;
     set_input_sda();
-    usleep(WAIT_TIME);
+    OUTPUT_WAIT;
     set_scl_high();
-    usleep(SIGNAL_TIME);
+    SIGNAL_WAIT;
     int bit = read_sda();
     set_scl_low();
-    usleep(WAIT_TIME);
+    OUTPUT_WAIT;
     set_output_sda();
 
     return bit;
@@ -94,7 +91,7 @@ int write_i2c(int slave, int reg, int data) {
         printf("Wrong acknoladge bit A1");
         error();
     }
-    usleep(WAIT_TIME);
+    OUTPUT_WAIT;
 
     write_byte(reg);
 
@@ -102,7 +99,7 @@ int write_i2c(int slave, int reg, int data) {
         printf("Wrong acknoladge bit A2");
         error();
     }
-    usleep(WAIT_TIME);
+    OUTPUT_WAIT;
 
     write_byte(data);
 

@@ -1,11 +1,15 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <time.h>
-#include <wiringPi.h>
 
-//wPi pin numbers
+//Your libraries
+#include <wiringPi.h>
+//
+
+//Your SDA and SCL definitions
 #define SDA 8
 #define SCL 9
+//
 
 #define DATA 'D'
 #define CLOCK 'C'
@@ -16,6 +20,7 @@
 FILE* debug_sda;
 FILE* debug_scl;
 
+uint64_t TIME_START = 0;
 uint64_t current_time() {
     //https://stackoverflow.com/questions/10192903/time-in-milliseconds
     struct timespec my_time;
@@ -27,20 +32,20 @@ uint64_t current_time() {
 }
 
 void debug(char line, char* val) {
-    uint64_t time=current_time();
+    uint64_t time=current_time()-TIME_START;
     if(val[0] != '0' && val[0] != '1') {
-        if(line=='D')   {
+        if(line==DATA)   {
            fprintf(debug_sda, "%s\n", val);
         }
-        if(line=='C')   {
+        if(line==CLOCK)   {
             fprintf(debug_scl, "%s\n", val);
         }
     }
     else {
-        if(line=='D')   {
+        if(line==DATA)   {
             fprintf(debug_sda, "%s %lld\n", val, time);
         }
-        if(line=='C')   {
+        if(line==CLOCK)   {
             fprintf(debug_scl, "%s %lld\n", val, time);
         }
     }
@@ -59,21 +64,30 @@ int init_i2c() {
         exit(1);
     }
     
+    TIME_START=current_time();
+
+    //Your init|setup function
     wiringPiSetup();
 
     //starting i2c by setting high signal on both SDA and SCL
     //default set on output
-    
+    debug(DATA, "\nSTART\n");
+    debug(CLOCK, "\nSTART\n");
+
+    //Set SDA and SCL on Output
     pinMode (SDA, OUTPUT);
-    digitalWrite(SDA, HIGH);
-    usleep(1000);
-
     pinMode (SCL, OUTPUT);
-    digitalWrite(SCL, HIGH);
-    usleep(1000);
+    //
 
-    debug(DATA, "\nS\n");
-    debug(CLOCK, "\nS\n");
+
+    digitalWrite(SDA, HIGH);
+    SIGNAL_WAIT;
+
+    digitalWrite(SCL, HIGH);
+    SIGNAL_WAIT;
+
+    debug(DATA, "\nEND START\n");
+    debug(CLOCK, "\nEND START\n");
     return 0;
 }
 
@@ -113,51 +127,45 @@ void set_scl_low (int frequency) {
     debug(CLOCK, "0");
 }
 
-int read_scl() { 
-    pinMode (SCL, INPUT);
-    usleep(100);
-    int reading=0;
-    reading = digitalRead(SDA);
-    
-    usleep(100);
-    pinMode (SCL, OUTPUT);
-
-    //do wywalenia
-    debug(CLOCK, "0");
-    
-    if(reading == 0){
-        debug(CLOCK, "0");
-        return 0;
-    } else {
-        debug(CLOCK, "1");
-        return 1;
-    }
-}
-
 void set_sda_high () {
+    //Set SDA on HIGH signal
     digitalWrite(SDA, HIGH);
+    //
     debug(DATA, "1");
 }
 
 void set_sda_low () {
+    //Set SDA on LOW signal
     digitalWrite(SDA, LOW);
+    //
+
     debug(DATA, "0");
 }
 
 
 void set_input_sda() {
+    //Set SDA intput on your device
     pinMode (SDA, INPUT);
+    //
+
     debug(DATA, "\nI\n");
 }
 
 void set_output_sda() {
+    //Set SDA output on your device
     pinMode (SDA, OUTPUT);
+    //
+
     debug(DATA, "\nO\n");
 }
 
 int read_sda() { 
     int val=0;
+
+    //Receive data from SDA to 'val'
     val=digitalRead(SDA);
+    //
+
     if(val == 0) {
         debug(DATA, "0");
         return 0;
@@ -167,3 +175,25 @@ int read_sda() {
         return 1;
     }
 }
+
+// int read_scl() { 
+//     pinMode (SCL, INPUT);
+//     usleep(100);
+//     int reading=0;
+
+//     reading = digitalRead(SDA);
+    
+//     usleep(100);
+//     pinMode (SCL, OUTPUT);
+
+//     //do wywalenia
+//     debug(CLOCK, "0");
+    
+//     if(reading == 0){
+//         debug(CLOCK, "0");
+//         return 0;
+//     } else {
+//         debug(CLOCK, "1");
+//         return 1;
+//     }
+// }
